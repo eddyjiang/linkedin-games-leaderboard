@@ -106,6 +106,7 @@ function getSenderName(messageElement) {
       ? messageElement.firstElementChild.nextElementSibling.firstElementChild
       : null;
   return senderNameElement ? senderNameElement.innerText.trim() : null;
+  // .firstElementChild.nextElementSibling.firstElementChild.innerText
 }
 
 // Helper function to get message text using lastElementChild.innerText
