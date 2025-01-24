@@ -4,6 +4,9 @@
   "version": "1.0",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["https://*.linkedin.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+  },
   "content_scripts": [
     {
       "matches": ["https://*.linkedin.com/*"],
