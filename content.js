@@ -3,11 +3,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatContainer = document.querySelector('.msg-s-message-list-content');
   if (!chatContainer) return;
 
+  // Input box selector
+  const inputBoxContainer = document.querySelector('.msg-form__contenteditable')?.closest('.msg-form');
+  if (!inputBoxContainer) return;
+
   // Add a button to generate the leaderboard
   const leaderboardButton = document.createElement('button');
   leaderboardButton.textContent = 'Generate Leaderboard';
   leaderboardButton.style = 'margin: 10px; padding: 5px;';
-  chatContainer.parentElement.prepend(leaderboardButton);
+
+  // Prepend the button right above the input box
+  inputBoxContainer.prepend(leaderboardButton);
 
   const scores = {};
   let processingMessages = false;
