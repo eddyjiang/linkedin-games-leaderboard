@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatContainer = document.querySelector('.msg-s-message-list-content');
   if (!chatContainer) return;
 
-  // Input box selector
-  const inputBoxContainer = document.querySelector('.msg-form__contenteditable')?.closest('.msg-form');
+  // Select the message input container
+  const inputBoxContainer = document.querySelector('.msg-form__msg-content-container');
   if (!inputBoxContainer) return;
 
   // Add a button to generate the leaderboard
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   leaderboardButton.textContent = 'Generate Leaderboard';
   leaderboardButton.style = 'margin: 10px; padding: 5px;';
 
-  // Prepend the button right above the input box
+  // Prepend the button right above the message input container
   inputBoxContainer.prepend(leaderboardButton);
 
   const scores = {};
