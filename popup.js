@@ -33,7 +33,7 @@ function generateLeaderboard() {
 
   // Loop through existing chat messages and parse scores
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
-  console.log("messageNodes")
+  console.log(messageNodes)
   messageNodes.forEach(node => {
     if (!processingMessages) {
       // Only start processing messages after "TODAY" header
