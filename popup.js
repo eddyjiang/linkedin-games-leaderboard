@@ -1,18 +1,3 @@
-document.getElementById('generateLeaderboardBtn').addEventListener('click', () => {
-  // Send a message to the content script to generate the leaderboard
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.scripting.executeScript(
-      {
-        target: { tabId: tabs[0].id },
-        func: generateLeaderboard,
-      },
-      (result) => {
-        console.log("Leaderboard generated:", result);
-      }
-    );
-  });
-});
-
 function generateLeaderboard() {
   // Grab the chat container and ensure it exists
   const chatContainer = document.querySelector('.msg-s-message-list-content');
@@ -23,15 +8,20 @@ function generateLeaderboard() {
 
   const scores = {};  // Store the scores for each game
   let processingMessages = false;
+  let lastSenderName = null;  // Track the last sender's name
+
+  // Get the "TODAY" header XPath to start processing after it
+  const todayHeaderXpath = "/html/body/div[5]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/time";
+  const todayHeaderResult = document.evaluate(todayHeaderXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+  const todayHeader = todayHeaderResult.singleNodeValue;
 
   // Loop through existing chat messages and parse scores
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
   messageNodes.forEach(node => {
-    // Look for the "TODAY" header and start processing after it
     if (!processingMessages) {
-      const todayHeader = node.querySelector('.msg-s-message-list__time-heading.t-12.t-black--light.t-bold');
-      if (todayHeader) {
-        processingMessages = true; // Start processing after this point
+      // Only start processing messages after "TODAY" header
+      if (node === todayHeader) {
+        processingMessages = true;
       }
     }
 
@@ -40,8 +30,13 @@ function generateLeaderboard() {
       const senderName = getSenderName(node);
       const messageText = getMessageText(node);
 
+      // If we have a sender name, but it's the same as the last one, don't extract again
+      if (senderName && senderName !== lastSenderName) {
+        lastSenderName = senderName;
+      }
+
       if (senderName && messageText) {
-        parseMessage(senderName, messageText);
+        parseMessage(lastSenderName, messageText);
       }
     }
   });
@@ -82,7 +77,7 @@ function generateLeaderboard() {
 
 // Helper function to get sender name using XPath
 function getSenderName(messageElement) {
-  const xpath = "/html/body/div[6]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div[1]/div[1]/span[1]/a/span";
+  const xpath = "/html/body/div[5]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div/div[1]/span/a/span";
   const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
   const senderNameElement = result.singleNodeValue;
   return senderNameElement ? senderNameElement.textContent.trim() : null;
@@ -90,7 +85,7 @@ function getSenderName(messageElement) {
 
 // Helper function to get message text using XPath
 function getMessageText(messageElement) {
-  const xpath = "/html/body/div[6]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div[1]/div[2]/div/div/p";
+  const xpath = "/html/body/div[5]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div/div[2]/div/div/p";
   const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
   const messageTextElement = result.singleNodeValue;
   return messageTextElement ? messageTextElement.textContent.trim() : null;
@@ -106,7 +101,7 @@ function parseMessage(playerName, message) {
 
     // Pinpoint: "Pinpoint #266 | 2 guesses" (lower guesses = better)
     if (line.startsWith("Pinpoint")) {
-      gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)\s*guesses/);
+      gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
         const game = "Pinpoint";
         const score = parseInt(gameScoreMatch[2], 10); // Lower guesses = better score
@@ -116,7 +111,7 @@ function parseMessage(playerName, message) {
 
     // Queens: "Queens #266 | 0:19" (lower time = better)
     else if (line.startsWith("Queens")) {
-      gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?/);
+      gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
         const game = "Queens";
         const minutes = parseInt(gameScoreMatch[2], 10);
@@ -128,7 +123,7 @@ function parseMessage(playerName, message) {
 
     // Crossclimb: "Crossclimb #266 | 0:20" (lower time = better)
     else if (line.startsWith("Crossclimb")) {
-      gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?/);
+      gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
         const game = "Crossclimb";
         const minutes = parseInt(gameScoreMatch[2], 10);
@@ -138,7 +133,7 @@ function parseMessage(playerName, message) {
       }
     }
 
-    // Tango: "Tango #106 | 0:35 and flawless" (lower time = better)
+    // Tango: "Tango #106 | 0:35 and flawless" (lower time = better, extra text ignored)
     else if (line.startsWith("Tango")) {
       gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
