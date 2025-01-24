@@ -57,10 +57,11 @@ function generateLeaderboard() {
   }
 
   // Generate leaderboard text
-  let leaderboard = '🏆 Leaderboard 🏆\n';
+  let leaderboard = '<p>🏆 Leaderboard 🏆</p>';
   for (const game in scores) {
+    leaderboard += '<p><br></p>';
     const sortedScores = scores[game].sort((a, b) => a.score - b.score); // Lower is better for all games
-    leaderboard += `\n${game}:\n`;
+    leaderboard += `<p>${game}:</p>`;
 
     let lastScore = null;
     let rank = 1;
@@ -68,7 +69,7 @@ function generateLeaderboard() {
       if (lastScore !== entry.score) {
         rank = index + 1;
       }
-      leaderboard += `${rank}. ${entry.player} - ${entry.score}\n`;
+      leaderboard += `<p>${rank}. ${entry.player} - ${entry.score}</p>`;
       lastScore = entry.score;
     });
   }
