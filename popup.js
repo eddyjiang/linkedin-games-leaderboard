@@ -1,3 +1,18 @@
+document.getElementById('generateLeaderboardBtn').addEventListener('click', () => {
+  // Send a message to the content script to generate the leaderboard
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabs[0].id },
+        func: generateLeaderboard,
+      },
+      (result) => {
+        console.log("Leaderboard generated:", result);
+      }
+    );
+  });
+});
+
 function generateLeaderboard() {
   // Grab the chat container and ensure it exists
   const chatContainer = document.querySelector('.msg-s-message-list-content');
