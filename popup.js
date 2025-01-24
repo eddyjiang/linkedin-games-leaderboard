@@ -32,6 +32,7 @@ function generateLeaderboard() {
 
   // Loop through existing chat messages and parse scores
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
+  console.log(messageNodes);
   messageNodes.forEach(node => {
     if (!processingMessages) {
       // Only start processing messages after "TODAY" header
@@ -44,7 +45,7 @@ function generateLeaderboard() {
     if (processingMessages) {
       const senderName = getSenderName(node);
       const messageText = getMessageText(node);
-      console.log("made it past TODAY header!")
+      console.log("made it past TODAY header!");
 
       // If the message has 3 child elements, we have a new sender, so parse the name
       if (node.childElementCount === 3 && senderName && senderName !== lastSenderName) {
