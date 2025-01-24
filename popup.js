@@ -89,7 +89,6 @@ function generateLeaderboard() {
       sendButton.click();
     }
   }
-}
 
 // Helper function to get sender name using the new property path
 function getSenderName(messageElement) {
@@ -171,4 +170,5 @@ function parseMessage(playerName, message) {
 function addToScores(game, playerName, score) {
   if (!scores[game]) scores[game] = [];
   scores[game].push({ player: playerName, score: score });
+}
 }
