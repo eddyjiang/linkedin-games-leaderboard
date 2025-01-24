@@ -10,20 +10,30 @@ document.addEventListener("DOMContentLoaded", () => {
   chatContainer.parentElement.prepend(leaderboardButton);
 
   const scores = {};
+  let processingMessages = false;
 
   // Observe the chat container for new messages
   const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
       mutation.addedNodes.forEach(node => {
         if (node.nodeType === Node.ELEMENT_NODE) {
-          // Extract sender name
-          const senderName = getSenderName(node);
+          // Look for the "TODAY" header and start processing after it
+          if (!processingMessages) {
+            const todayHeader = node.querySelector('.msg-s-message-list__time-heading.t-12.t-black--light.t-bold');
+            if (todayHeader) {
+              processingMessages = true; // Start processing after this point
+            }
+          }
 
-          // Extract message text
-          const messageText = getMessageText(node);
+          // Only process messages after the "TODAY" header
+          if (processingMessages) {
+            // Extract sender name and message text
+            const senderName = getSenderName(node);
+            const messageText = getMessageText(node);
 
-          if (senderName && messageText) {
-            parseMessage(senderName, messageText);
+            if (senderName && messageText) {
+              parseMessage(senderName, messageText);
+            }
           }
         }
       });
@@ -46,21 +56,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Parse messages to extract scores
   function parseMessage(playerName, message) {
-    // Split message into lines
     const lines = message.split('\n');
     if (lines.length < 1) return;
 
-    // Extract game name and score
-    const gameScorePattern = /^(?<game>[\w\s]+)\s*\|\s*(?<score>\d+)$/;
-    const gameScoreMatch = lines[0].match(gameScorePattern);
+    lines.forEach(line => {
+      const gameScorePattern = /^(?<game>[\w\s]+)\s*\|\s*(?<score>\d+)$/;
+      const gameScoreMatch = line.match(gameScorePattern);
 
-    if (gameScoreMatch) {
-      const { game, score } = gameScoreMatch.groups;
+      if (gameScoreMatch) {
+        const { game, score } = gameScoreMatch.groups;
 
-      // Add to the scores object
-      if (!scores[game]) scores[game] = [];
-      scores[game].push({ player: playerName, score: parseInt(score, 10) });
-    }
+        // Add to the scores object
+        if (!scores[game]) scores[game] = [];
+        scores[game].push({ player: playerName, score: parseInt(score, 10) });
+      }
+    });
   }
 
   // Generate leaderboard and send it to the chat
@@ -75,8 +85,15 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const game in scores) {
       const sortedScores = scores[game].sort((a, b) => b.score - a.score);
       leaderboard += `\n${game}:\n`;
+
+      let lastScore = null;
+      let rank = 1;
       sortedScores.slice(0, 3).forEach((entry, index) => {
-        leaderboard += `${index + 1}. ${entry.player} - ${entry.score}\n`;
+        if (lastScore !== entry.score) {
+          rank = index + 1;
+        }
+        leaderboard += `${rank}. ${entry.player} - ${entry.score}\n`;
+        lastScore = entry.score;
       });
     }
 
@@ -84,13 +101,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function sendToChat(message) {
-    // Input box selector
+    if (!message) {
+      message = "No valid game scores found.";
+    }
     const inputBox = document.querySelector('.msg-form__contenteditable');
     if (inputBox) {
-      inputBox.textContent = message; // Update the content
+      inputBox.textContent = message;
       inputBox.dispatchEvent(new Event('input', { bubbles: true }));
 
-      // Send button selector
       const sendButton = document.querySelector('.msg-form__send-button');
       if (sendButton) {
         sendButton.click();
