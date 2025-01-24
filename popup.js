@@ -63,12 +63,16 @@ function generateLeaderboard() {
     });
   }
 
-  // Send leaderboard to the chat
+  // Find the input box and insert the leaderboard into it
   const inputBox = document.querySelector('.msg-form__contenteditable');
   if (inputBox) {
-    inputBox.textContent = leaderboard;
+    // Use innerHTML to insert the leaderboard HTML properly into the input box
+    inputBox.innerHTML = `<p>${leaderboard}</p>`;
+
+    // Dispatch the input event to simulate the user typing
     inputBox.dispatchEvent(new Event('input', { bubbles: true }));
 
+    // Trigger the send button click
     const sendButton = document.querySelector('.msg-form__send-button');
     if (sendButton) {
       sendButton.click();
