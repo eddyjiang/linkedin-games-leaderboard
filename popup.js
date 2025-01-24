@@ -80,15 +80,30 @@ function generateLeaderboard() {
   }
 }
 
-// Helper functions to extract sender name and message text
+// Helper function to get sender name using XPath
 function getSenderName(messageElement) {
-  const nameElement = messageElement.closest('.msg-s-event-listitem')?.querySelector('.msg-s-message-group__profile-link');
-  return nameElement ? nameElement.textContent.trim() : null;
+  // Define the XPath for the sender's name
+  const xpath = "/html/body/div[6]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div[1]/div[1]/span[1]/a/span";
+
+  // Execute the XPath query to get the sender's name element
+  const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+  const senderNameElement = result.singleNodeValue;
+
+  // Return the sender's name if found, otherwise return null
+  return senderNameElement ? senderNameElement.textContent.trim() : null;
 }
 
+// Helper function to get message text using XPath
 function getMessageText(messageElement) {
-  const textElement = messageElement.querySelector('.msg-s-event-listitem__body');
-  return textElement ? textElement.textContent.trim() : null;
+  // Define the XPath for the message content
+  const xpath = "/html/body/div[6]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div[1]/div[2]/div/div/p";
+
+  // Execute the XPath query to get the message content element
+  const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+  const messageTextElement = result.singleNodeValue;
+
+  // Return the message text if found, otherwise return null
+  return messageTextElement ? messageTextElement.textContent.trim() : null;
 }
 
 // Parse the message for game scores
