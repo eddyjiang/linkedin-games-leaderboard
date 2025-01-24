@@ -23,6 +23,7 @@ function generateLeaderboard() {
 
   let processMessages = false; // Start processing only after "TODAY"
   let lastSenderName = null; // Track the last sender
+  const scores = {}; // Store the scores for each game
 
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
   
@@ -54,8 +55,6 @@ function generateLeaderboard() {
     const parentText = messageElement.parentElement.innerText.trim();
     return parentText.startsWith('TODAY');
   }
-  
-  const scores = {}; // Store the scores for each game
 
   // Generate leaderboard text
   let leaderboard = '🏆 Leaderboard 🏆\n';
