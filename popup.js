@@ -21,48 +21,41 @@ function generateLeaderboard() {
     return;
   }
 
-  const scores = {}; // Store the scores for each game
-  let processingMessages = false;
-  let lastSenderName = null; // Track the last sender's name
+  let processMessages = false; // Start processing only after "TODAY"
+  let lastSenderName = null; // Track the last sender
 
-  // Find the last message from yesterday
-  const lastYesterdayMessage = Array.from(
-    chatContainer.querySelectorAll(
-      '.msg-s-event-listitem.msg-s-event-listitem--m2m-msg-followed-by-date-boundary'
-    )
-  ).pop();
-
-  // Loop through existing chat messages and parse scores
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
+  
   console.log(messageNodes);
+  
   messageNodes.forEach((node) => {
-    if (!processingMessages) {
-      // Only start processing messages after yesterday's last message
-      if (node === lastYesterdayMessage) {
-        console.log("Found yesterday's last message!");
-        processingMessages = true;
-        return; // Skip yesterday's last message itself
-      }
+    // Check for "TODAY" header
+    if (isDayHeader(node)) {
+      console.log("Reached 'TODAY' header. Starting to process messages.");
+      processMessages = true;
     }
 
-    // Only process messages after yesterday's last message
-    if (processingMessages) {
-      const senderName = getSenderName(node);
-      const messageText = getMessageText(node);
-      console.log(senderName);
-      console.log(messageText);
+    if (processMessages) {
+      console.log("Now processing messages");
+      const senderName = getSenderName(node); // Get the sender name (or reuse lastSenderName)
+      const messageText = getMessageText(node); // Get the message text
 
-      // If the message has 3 child elements, we have a new sender, so parse the name
-      if (node.childElementCount === 3 && senderName && senderName !== lastSenderName) {
-        lastSenderName = senderName; // Update the last sender's name
-      }
+      console.log("Sender Name:", senderName);
+      console.log("Message Text:", messageText);
 
-      // Parse the message if we have both sender and text
-      if (lastSenderName && messageText) {
-        parseMessage(lastSenderName, messageText);
+      if (senderName && messageText) {
+        parseMessage(senderName, messageText);
       }
     }
   });
+
+  // Helper: Detect if the message is a "TODAY" header
+  function isDayHeader(messageElement) {
+    const parentText = messageElement.parentElement.innerText.trim();
+    return parentText.startsWith('TODAY');
+  }
+  
+  const scores = {}; // Store the scores for each game
 
   // Generate leaderboard text
   let leaderboard = '🏆 Leaderboard 🏆\n';
@@ -101,10 +94,12 @@ function generateLeaderboard() {
 // Helper function to get sender name using the new property path
 function getSenderName(messageElement) {
   // Check if message has 3 child elements (name is included)
+  console.log(messageElement.childElementCount);
   const senderNameElement =
-    messageElement.childElementCount === 3
+    messageElement.childElementCount == 3
       ? messageElement.firstElementChild.nextElementSibling.firstElementChild
       : null;
+  console.log(senderNameElement.innerText.trim());
   return senderNameElement ? senderNameElement.innerText.trim() : null;
   // .firstElementChild.nextElementSibling.firstElementChild.innerText
 }
@@ -112,6 +107,7 @@ function getSenderName(messageElement) {
 // Helper function to get message text using lastElementChild.innerText
 function getMessageText(messageElement) {
   const scoreText = messageElement.lastElementChild.innerText.trim();
+  console.log("Score text:", scoreText);
   return scoreText || null; // Return the game score text or null if not found
 }
 
