@@ -21,31 +21,36 @@ function generateLeaderboard() {
     return;
   }
 
-  const scores = {};  // Store the scores for each game
+  const scores = {}; // Store the scores for each game
   let processingMessages = false;
-  let lastSenderName = null;  // Track the last sender's name
+  let lastSenderName = null; // Track the last sender's name
 
-  // Get the "TODAY" header XPath to start processing after it
-  const todayHeaderXpath = "/html/body/div[5]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/time";
-  const todayHeaderResult = document.evaluate(todayHeaderXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-  const todayHeader = todayHeaderResult.singleNodeValue;
+  // Find the last message from yesterday
+  const lastYesterdayMessage = Array.from(
+    chatContainer.querySelectorAll(
+      '.msg-s-event-listitem.msg-s-event-listitem--m2m-msg-followed-by-date-boundary'
+    )
+  ).pop();
 
   // Loop through existing chat messages and parse scores
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
   console.log(messageNodes);
-  messageNodes.forEach(node => {
+  messageNodes.forEach((node) => {
     if (!processingMessages) {
-      // Only start processing messages after "TODAY" header
-      if (node === todayHeader) {
+      // Only start processing messages after yesterday's last message
+      if (node === lastYesterdayMessage) {
+        console.log("Found yesterday's last message!");
         processingMessages = true;
+        return; // Skip yesterday's last message itself
       }
     }
 
-    // Only process messages after the "TODAY" header
+    // Only process messages after yesterday's last message
     if (processingMessages) {
       const senderName = getSenderName(node);
       const messageText = getMessageText(node);
-      console.log("made it past TODAY header!");
+      console.log(senderName);
+      console.log(messageText);
 
       // If the message has 3 child elements, we have a new sender, so parse the name
       if (node.childElementCount === 3 && senderName && senderName !== lastSenderName) {
@@ -96,16 +101,17 @@ function generateLeaderboard() {
 // Helper function to get sender name using the new property path
 function getSenderName(messageElement) {
   // Check if message has 3 child elements (name is included)
-  const senderNameElement = messageElement.childElementCount === 3 ? 
-    messageElement.firstElementChild.nextElementSibling.firstElementChild.innerText : 
-    null;
-  return senderNameElement ? senderNameElement.trim() : null;
+  const senderNameElement =
+    messageElement.childElementCount === 3
+      ? messageElement.firstElementChild.nextElementSibling.firstElementChild
+      : null;
+  return senderNameElement ? senderNameElement.innerText.trim() : null;
 }
 
 // Helper function to get message text using lastElementChild.innerText
 function getMessageText(messageElement) {
   const scoreText = messageElement.lastElementChild.innerText.trim();
-  return scoreText || null;  // Return the game score text or null if not found
+  return scoreText || null; // Return the game score text or null if not found
 }
 
 // Parse the message for game scores
@@ -113,24 +119,24 @@ function parseMessage(playerName, message) {
   const lines = message.split('\n');
   if (lines.length < 1) return;
 
-  lines.forEach(line => {
+  lines.forEach((line) => {
     let gameScoreMatch;
 
     // Pinpoint: "Pinpoint #266 | 2 guesses" (lower guesses = better)
-    if (line.startsWith("Pinpoint")) {
+    if (line.startsWith('Pinpoint')) {
       gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
-        const game = "Pinpoint";
+        const game = 'Pinpoint';
         const score = parseInt(gameScoreMatch[2], 10); // Lower guesses = better score
         addToScores(game, playerName, score);
       }
     }
 
     // Queens: "Queens #266 | 0:19" (lower time = better)
-    else if (line.startsWith("Queens")) {
+    else if (line.startsWith('Queens')) {
       gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
-        const game = "Queens";
+        const game = 'Queens';
         const minutes = parseInt(gameScoreMatch[2], 10);
         const seconds = parseInt(gameScoreMatch[3], 10);
         const score = minutes * 60 + seconds; // Convert time to seconds
@@ -139,10 +145,10 @@ function parseMessage(playerName, message) {
     }
 
     // Crossclimb: "Crossclimb #266 | 0:20" (lower time = better)
-    else if (line.startsWith("Crossclimb")) {
+    else if (line.startsWith('Crossclimb')) {
       gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
-        const game = "Crossclimb";
+        const game = 'Crossclimb';
         const minutes = parseInt(gameScoreMatch[2], 10);
         const seconds = parseInt(gameScoreMatch[3], 10);
         const score = minutes * 60 + seconds; // Convert time to seconds
@@ -151,10 +157,10 @@ function parseMessage(playerName, message) {
     }
 
     // Tango: "Tango #106 | 0:35 and flawless" (lower time = better)
-    else if (line.startsWith("Tango")) {
+    else if (line.startsWith('Tango')) {
       gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
-        const game = "Tango";
+        const game = 'Tango';
         const minutes = parseInt(gameScoreMatch[2], 10);
         const seconds = parseInt(gameScoreMatch[3], 10);
         const score = minutes * 60 + seconds; // Convert time to seconds
