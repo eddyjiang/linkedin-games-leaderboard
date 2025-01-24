@@ -90,85 +90,85 @@ function generateLeaderboard() {
     }
   }
 
-// Helper function to get sender name using the new property path
-function getSenderName(messageElement) {
-  // Check if message has 3 child elements (name is included)
-  console.log(messageElement.childElementCount);
-  const senderNameElement =
-    messageElement.childElementCount == 3
-      ? messageElement.firstElementChild.nextElementSibling.firstElementChild
-      : null;
-  console.log(senderNameElement.innerText.trim());
-  return senderNameElement ? senderNameElement.innerText.trim() : null;
-  // .firstElementChild.nextElementSibling.firstElementChild.innerText
-}
-
-// Helper function to get message text using lastElementChild.innerText
-function getMessageText(messageElement) {
-  const scoreText = messageElement.lastElementChild.innerText.trim();
-  console.log("Score text:", scoreText);
-  return scoreText || null; // Return the game score text or null if not found
-}
-
-// Parse the message for game scores
-function parseMessage(playerName, message) {
-  const lines = message.split('\n');
-  if (lines.length < 1) return;
-
-  lines.forEach((line) => {
-    let gameScoreMatch;
-
-    // Pinpoint: "Pinpoint #266 | 2 guesses" (lower guesses = better)
-    if (line.startsWith('Pinpoint')) {
-      gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)(?:.*)?$/);
-      if (gameScoreMatch) {
-        const game = 'Pinpoint';
-        const score = parseInt(gameScoreMatch[2], 10); // Lower guesses = better score
-        addToScores(game, playerName, score);
+  // Helper function to get sender name using the new property path
+  function getSenderName(messageElement) {
+    // Check if message has 3 child elements (name is included)
+    console.log(messageElement.childElementCount);
+    const senderNameElement =
+      messageElement.childElementCount == 3
+        ? messageElement.firstElementChild.nextElementSibling.firstElementChild
+        : null;
+    console.log(senderNameElement.innerText.trim());
+    return senderNameElement ? senderNameElement.innerText.trim() : null;
+    // .firstElementChild.nextElementSibling.firstElementChild.innerText
+  }
+  
+  // Helper function to get message text using lastElementChild.innerText
+  function getMessageText(messageElement) {
+    const scoreText = messageElement.lastElementChild.innerText.trim();
+    console.log("Score text:", scoreText);
+    return scoreText || null; // Return the game score text or null if not found
+  }
+  
+  // Parse the message for game scores
+  function parseMessage(playerName, message) {
+    const lines = message.split('\n');
+    if (lines.length < 1) return;
+  
+    lines.forEach((line) => {
+      let gameScoreMatch;
+  
+      // Pinpoint: "Pinpoint #266 | 2 guesses" (lower guesses = better)
+      if (line.startsWith('Pinpoint')) {
+        gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)(?:.*)?$/);
+        if (gameScoreMatch) {
+          const game = 'Pinpoint';
+          const score = parseInt(gameScoreMatch[2], 10); // Lower guesses = better score
+          addToScores(game, playerName, score);
+        }
       }
-    }
-
-    // Queens: "Queens #266 | 0:19" (lower time = better)
-    else if (line.startsWith('Queens')) {
-      gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
-      if (gameScoreMatch) {
-        const game = 'Queens';
-        const minutes = parseInt(gameScoreMatch[2], 10);
-        const seconds = parseInt(gameScoreMatch[3], 10);
-        const score = minutes * 60 + seconds; // Convert time to seconds
-        addToScores(game, playerName, score);
+  
+      // Queens: "Queens #266 | 0:19" (lower time = better)
+      else if (line.startsWith('Queens')) {
+        gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+        if (gameScoreMatch) {
+          const game = 'Queens';
+          const minutes = parseInt(gameScoreMatch[2], 10);
+          const seconds = parseInt(gameScoreMatch[3], 10);
+          const score = minutes * 60 + seconds; // Convert time to seconds
+          addToScores(game, playerName, score);
+        }
       }
-    }
-
-    // Crossclimb: "Crossclimb #266 | 0:20" (lower time = better)
-    else if (line.startsWith('Crossclimb')) {
-      gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
-      if (gameScoreMatch) {
-        const game = 'Crossclimb';
-        const minutes = parseInt(gameScoreMatch[2], 10);
-        const seconds = parseInt(gameScoreMatch[3], 10);
-        const score = minutes * 60 + seconds; // Convert time to seconds
-        addToScores(game, playerName, score);
+  
+      // Crossclimb: "Crossclimb #266 | 0:20" (lower time = better)
+      else if (line.startsWith('Crossclimb')) {
+        gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+        if (gameScoreMatch) {
+          const game = 'Crossclimb';
+          const minutes = parseInt(gameScoreMatch[2], 10);
+          const seconds = parseInt(gameScoreMatch[3], 10);
+          const score = minutes * 60 + seconds; // Convert time to seconds
+          addToScores(game, playerName, score);
+        }
       }
-    }
-
-    // Tango: "Tango #106 | 0:35 and flawless" (lower time = better)
-    else if (line.startsWith('Tango')) {
-      gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
-      if (gameScoreMatch) {
-        const game = 'Tango';
-        const minutes = parseInt(gameScoreMatch[2], 10);
-        const seconds = parseInt(gameScoreMatch[3], 10);
-        const score = minutes * 60 + seconds; // Convert time to seconds
-        addToScores(game, playerName, score);
+  
+      // Tango: "Tango #106 | 0:35 and flawless" (lower time = better)
+      else if (line.startsWith('Tango')) {
+        gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+        if (gameScoreMatch) {
+          const game = 'Tango';
+          const minutes = parseInt(gameScoreMatch[2], 10);
+          const seconds = parseInt(gameScoreMatch[3], 10);
+          const score = minutes * 60 + seconds; // Convert time to seconds
+          addToScores(game, playerName, score);
+        }
       }
-    }
-  });
-}
-
-// Helper function to add scores to the leaderboard
-function addToScores(game, playerName, score) {
-  if (!scores[game]) scores[game] = [];
-  scores[game].push({ player: playerName, score: score });
-}
+    });
+  }
+  
+  // Helper function to add scores to the leaderboard
+  function addToScores(game, playerName, score) {
+    if (!scores[game]) scores[game] = [];
+    scores[game].push({ player: playerName, score: score });
+  }
 }
