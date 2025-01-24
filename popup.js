@@ -93,13 +93,10 @@ function generateLeaderboard() {
   function getSenderName(messageElement) {
     // Check if message has 3 child elements (name is included)
     console.log(messageElement.childElementCount);
-    const senderNameElement =
-      messageElement.childElementCount == 3
-        ? messageElement.firstElementChild.nextElementSibling.firstElementChild
-        : null;
-    console.log(senderNameElement.innerText.trim());
-    return senderNameElement ? senderNameElement.innerText.trim() : null;
-    // .firstElementChild.nextElementSibling.firstElementChild.innerText
+    if (messageElement.childElementCount == 3)
+      lastSenderName = messageElement.firstElementChild.nextElementSibling.firstElementChild.innerText.trim()
+    console.log(lastSenderName);
+    return lastSenderName;
   }
   
   // Helper function to get message text using lastElementChild.innerText
