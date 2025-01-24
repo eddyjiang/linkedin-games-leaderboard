@@ -20,7 +20,6 @@ function generateLeaderboard() {
     console.error("Chat container not found.");
     return;
   }
-  console.log("chatContainer")
 
   const scores = {};  // Store the scores for each game
   let processingMessages = false;
@@ -33,7 +32,6 @@ function generateLeaderboard() {
 
   // Loop through existing chat messages and parse scores
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
-  console.log(messageNodes)
   messageNodes.forEach(node => {
     if (!processingMessages) {
       // Only start processing messages after "TODAY" header
@@ -46,13 +44,15 @@ function generateLeaderboard() {
     if (processingMessages) {
       const senderName = getSenderName(node);
       const messageText = getMessageText(node);
+      console.log("made it past TODAY header!")
 
-      // If we have a sender name, but it's the same as the last one, don't extract again
-      if (senderName && senderName !== lastSenderName) {
-        lastSenderName = senderName;
+      // If the message has 3 child elements, we have a new sender, so parse the name
+      if (node.childElementCount === 3 && senderName && senderName !== lastSenderName) {
+        lastSenderName = senderName; // Update the last sender's name
       }
 
-      if (senderName && messageText) {
+      // Parse the message if we have both sender and text
+      if (lastSenderName && messageText) {
         parseMessage(lastSenderName, messageText);
       }
     }
@@ -92,20 +92,19 @@ function generateLeaderboard() {
   }
 }
 
-// Helper function to get sender name using XPath
+// Helper function to get sender name using the new property path
 function getSenderName(messageElement) {
-  const xpath = "/html/body/div[5]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div/div[1]/span/a/span";
-  const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-  const senderNameElement = result.singleNodeValue;
-  return senderNameElement ? senderNameElement.textContent.trim() : null;
+  // Check if message has 3 child elements (name is included)
+  const senderNameElement = messageElement.childElementCount === 3 ? 
+    messageElement.firstElementChild.nextElementSibling.firstElementChild.innerText : 
+    null;
+  return senderNameElement ? senderNameElement.trim() : null;
 }
 
-// Helper function to get message text using XPath
+// Helper function to get message text using lastElementChild.innerText
 function getMessageText(messageElement) {
-  const xpath = "/html/body/div[5]/div[3]/div[2]/div/div/main/div/div[2]/div[2]/div[1]/div/div[4]/div[2]/ul/li[19]/div/div[2]/div/div/p";
-  const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-  const messageTextElement = result.singleNodeValue;
-  return messageTextElement ? messageTextElement.textContent.trim() : null;
+  const scoreText = messageElement.lastElementChild.innerText.trim();
+  return scoreText || null;  // Return the game score text or null if not found
 }
 
 // Parse the message for game scores
@@ -150,7 +149,7 @@ function parseMessage(playerName, message) {
       }
     }
 
-    // Tango: "Tango #106 | 0:35 and flawless" (lower time = better, extra text ignored)
+    // Tango: "Tango #106 | 0:35 and flawless" (lower time = better)
     else if (line.startsWith("Tango")) {
       gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
       if (gameScoreMatch) {
