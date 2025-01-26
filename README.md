@@ -1,15 +1,15 @@
 ### Description
 LinkedIn Games Leaderboard is a Chrome Extension that generates a daily leaderboard to send to LinkedIn Games groupchats
 
-### Features
-- Automatically detects chat windows and score messages
-- Generates daily leaderboard of all four games (Queens, Tango, Pinpoint, Crossclimb)
-- Clean, intuitive interface
-
 ### Instructions
 1. Open your LinkedIn Games groupchat
 2. Click “Generate Leaderboard”
 3. Send!
+
+### Features
+- Automatically detects chat windows and score messages
+- Generates daily leaderboard of all four games (Queens, Tango, Pinpoint, Crossclimb)
+- Clean, intuitive interface
 
 ### Privacy Policy
 This extension:
