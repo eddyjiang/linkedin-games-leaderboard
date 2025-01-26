@@ -32,12 +32,11 @@ function generateLeaderboard() {
   messageNodes.forEach((node) => {
     // Check for "TODAY" header
     if (isDayHeader(node)) {
-      console.log("Reached 'TODAY' header. Starting to process messages.");
+      console.log("Reached 'TODAY' header. Now processing messages.");
       processMessages = true;
     }
 
     if (processMessages) {
-      console.log("Now processing messages");
       const senderName = getSenderName(node); // Get the sender name (or reuse lastSenderName)
       const messageText = getMessageText(node); // Get the message text
 
@@ -61,7 +60,7 @@ function generateLeaderboard() {
   for (const game in scores) {
     leaderboard += '<p><br></p>';
     const sortedScores = scores[game].sort((a, b) => a.score - b.score); // Lower is better for all games
-    leaderboard += `<p>${game}:</p>`;
+    leaderboard += `<p>${game}</p>`;
 
     let lastScore = null;
     let rank = 1;
@@ -69,7 +68,22 @@ function generateLeaderboard() {
       if (lastScore !== entry.score) {
         rank = index + 1;
       }
-      leaderboard += `<p>${rank}. ${entry.player} - ${entry.score}</p>`;
+      let medal = ['🥇', '🥈', '🥉'];
+      if (game == 'Pinpoint 📌') {
+        leaderboard += `<p>${medal[rank - 1]} ${entry.player} — ${entry.score}</p>`;
+      }
+      else {
+        const minutes = Math.floor(entry.score / 60);
+        const seconds = entry.score - minutes * 60;
+
+        function str_pad_left(string, pad, length) {
+          return (new Array(length + 1).join(pad) + string).slice(-length);
+        }
+
+        const finalTime = minutes.toString() + ':' + str_pad_left(seconds, '0', 2);
+
+        leaderboard += `<p>${medal[rank - 1]} ${entry.player} — ${finalTime}</p>`;
+      }
       lastScore = entry.score;
     });
   }
@@ -82,28 +96,19 @@ function generateLeaderboard() {
 
     // Dispatch the input event to simulate the user typing
     inputBox.dispatchEvent(new Event('input', { bubbles: true }));
-
-    // Trigger the send button click
-    const sendButton = document.querySelector('.msg-form__send-button');
-    if (sendButton) {
-      sendButton.click();
-    }
   }
 
   // Helper function to get sender name using the new property path
   function getSenderName(messageElement) {
     // Check if message has 3 child elements (name is included)
-    console.log(messageElement.childElementCount);
     if (messageElement.childElementCount == 3)
       lastSenderName = messageElement.firstElementChild.nextElementSibling.firstElementChild.innerText.trim()
-    console.log(lastSenderName);
     return lastSenderName;
   }
   
   // Helper function to get message text using lastElementChild.innerText
   function getMessageText(messageElement) {
     const scoreText = messageElement.lastElementChild.innerText.trim();
-    console.log("Score text:", scoreText);
     return scoreText || null; // Return the game score text or null if not found
   }
   
@@ -119,7 +124,7 @@ function generateLeaderboard() {
       if (line.startsWith('Pinpoint')) {
         gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)(?:.*)?$/);
         if (gameScoreMatch) {
-          const game = 'Pinpoint';
+          const game = 'Pinpoint 📌';
           const score = parseInt(gameScoreMatch[2], 10); // Lower guesses = better score
           addToScores(game, playerName, score);
         }
@@ -129,7 +134,7 @@ function generateLeaderboard() {
       else if (line.startsWith('Queens')) {
         gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
         if (gameScoreMatch) {
-          const game = 'Queens';
+          const game = 'Queens 👑';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
@@ -141,7 +146,7 @@ function generateLeaderboard() {
       else if (line.startsWith('Crossclimb')) {
         gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
         if (gameScoreMatch) {
-          const game = 'Crossclimb';
+          const game = 'Crossclimb 🪜';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
@@ -149,11 +154,11 @@ function generateLeaderboard() {
         }
       }
   
-      // Tango: "Tango #106 | 0:35 and flawless" (lower time = better)
+      // Tango: "Tango #106 | 0:21" (lower time = better)
       else if (line.startsWith('Tango')) {
         gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
         if (gameScoreMatch) {
-          const game = 'Tango';
+          const game = 'Tango 🌗';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
