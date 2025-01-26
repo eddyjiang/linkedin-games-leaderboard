@@ -64,9 +64,12 @@ function generateLeaderboard() {
 
     let lastScore = null;
     let rank = 1;
-    sortedScores.slice(0, 3).forEach((entry, index) => {
+    sortedScores.forEach((entry, index) => {
       if (lastScore !== entry.score) {
         rank = index + 1;
+      }
+      if (rank > 3) {
+        return;
       }
       let medal = ['🥇', '🥈', '🥉'];
       if (game == 'Pinpoint 📌') {
