@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LinkedIn Games Leaderboard",
   "version": "1.0",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://*.linkedin.com/*"],
   "action": {
     "default_popup": "popup.html"
@@ -10,5 +10,6 @@
   "icons": {
     "48": "icon48.png",
     "128": "icon128.png"
-  }
+  },
+  "description": "Daily leaderboard generator for LinkedIn Games groupchats"
 }
