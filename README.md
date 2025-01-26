@@ -20,7 +20,7 @@ This extension:
 - Requires minimal permissions (activeTab, scripting, storage)
 
 ### Version History
-1.0 - Initial release
+1.0 — Initial release
 - Basic chat window detection and leaderboard generation
 - Support for all four games
 - Automated message input
