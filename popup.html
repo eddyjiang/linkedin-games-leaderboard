@@ -6,28 +6,58 @@
   <title>LinkedIn Games Leaderboard</title>
   <style>
     body {
-      width: 200px;
+      width: 260px;
       padding: 10px;
       font-family: "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
     button {
       width: 100%;
       padding: 10px;
-      background-color: #007ebb;
+      margin-top: 10px;
+      border-radius: 10px;
+      background-color: #0b65c3;
       color: white;
+      font-size: 16px;
       border: none;
       cursor: pointer;
     }
     button:hover {
-      background-color: #07547d;
+      background-color: #0d509c;
+    }
+    .icon{
+      width: 36px;
+      height: 36px;
+      padding-top: 5px;
+    }
+    .horizontal{
+      display: flex;
+    }
+    .vertical{
+      margin-left: 15px;
+    }
+    .header{
+      margin: 0;
+    }
+    .instructions{
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <img src="icon48.png">
-  <h4>LinkedIn Games Leaderboard</h4>
-  <button id="generateLeaderboardBtn">Generate Leaderboard</button>
-
+  <div class="horizontal">
+    <img class="icon" src="logo.png">
+    <div class="vertical">
+      <h2 class="header">LinkedIn Games</h2>
+      <h2 class="header">Leaderboard</h2>
+    </div>
+  </div>
+  <div>
+    <h3><span style = "font-size: 16px">Instructions</span><span style = "font-size: 17px"> 👑🪜🌗📌</span></h3>
+    <p class="instructions"><span style = "font-size: 15px">🥇 </span>Open your LinkedIn Games groupchat</p>
+    <p class="instructions"><span style = "font-size: 15px">🥈 </span>Click "Generate Leaderboard"</p>
+    <p class="instructions"><span style = "font-size: 15px">🥉 </span>Send!</p>
+  </div>
+  <button id="generateLeaderboardBtn">🏆 Generate Leaderboard 🏆</button>
   <script src="popup.js"></script>
 </body>
 </html>
