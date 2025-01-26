@@ -16,7 +16,7 @@ This extension:
 - Only activates on linkedin.com
 - Does not collect any personal data
 - Does not track user behavior
-- Does not modify any LinkedIn content except puzzle interactions
+- Does not modify any LinkedIn content except message input
 - Requires minimal permissions (activeTab, scripting, storage)
 
 ### Version History
