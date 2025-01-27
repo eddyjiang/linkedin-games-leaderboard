@@ -1,3 +1,4 @@
+![Marquee image](/Marquee Image.png)
 ### Description
 LinkedIn Games Leaderboard is a Chrome Extension that generates a daily leaderboard to send to LinkedIn Games groupchats
 
