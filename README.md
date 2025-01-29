@@ -13,6 +13,10 @@ LinkedIn Games Leaderboard is a Chrome Extension that generates a daily leaderbo
 - Clean, intuitive interface
 
 ### Version History
+1.1
+- Comprehensive support for score message formats
+- Improved tiebreaking
+
 1.0 — Initial release
 - Basic chat window detection and leaderboard generation
 - Support for all four games
