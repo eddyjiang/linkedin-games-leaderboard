@@ -63,10 +63,15 @@ function generateLeaderboard() {
     leaderboard += `<p>${game}</p>`;
 
     let lastScore = null;
-    let rank = 1;
-    sortedScores.forEach((entry, index) => {
+    let rank = 0;
+    let numTies = 1;
+    sortedScores.forEach((entry) => {
       if (lastScore !== entry.score) {
-        rank = index + 1;
+        rank += numTies;
+        numTies = 1;
+      }
+      else {
+        numTies++;
       }
       if (rank > 3) {
         return;
@@ -120,8 +125,9 @@ function generateLeaderboard() {
     const lines = message.split('\n');
     if (lines.length < 1) return;
   
-    lines.forEach((line) => {
+    lines.forEach((line, index) => {
       let gameScoreMatch;
+      let altGameScoreMatch;
   
       // Pinpoint: "Pinpoint #266 | 2 guesses" (lower guesses = better)
       if (line.startsWith('Pinpoint')) {
@@ -136,10 +142,20 @@ function generateLeaderboard() {
       // Queens: "Queens #266 | 0:19" (lower time = better)
       else if (line.startsWith('Queens')) {
         gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+        if (index < lines.length - 1) {
+          altGameScoreMatch = lines[index + 1].match(/^(\d+):(\d+)(?:.*)?$/);
+        }
         if (gameScoreMatch) {
           const game = 'Queens 👑';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
+          const score = minutes * 60 + seconds; // Convert time to seconds
+          addToScores(game, playerName, score);
+        }
+        else if (altGameScoreMatch) {
+          const game = 'Queens 👑';
+          const minutes = parseInt(altGameScoreMatch[1], 10);
+          const seconds = parseInt(altGameScoreMatch[2], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
           addToScores(game, playerName, score);
         }
@@ -148,10 +164,20 @@ function generateLeaderboard() {
       // Crossclimb: "Crossclimb #266 | 0:20" (lower time = better)
       else if (line.startsWith('Crossclimb')) {
         gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+        if (index < lines.length - 1) {
+          altGameScoreMatch = lines[index + 1].match(/^(\d+):(\d+)(?:.*)?$/);
+        }
         if (gameScoreMatch) {
           const game = 'Crossclimb 🪜';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
+          const score = minutes * 60 + seconds; // Convert time to seconds
+          addToScores(game, playerName, score);
+        }
+        else if (altGameScoreMatch) {
+          const game = 'Crossclimb 🪜';
+          const minutes = parseInt(altGameScoreMatch[1], 10);
+          const seconds = parseInt(altGameScoreMatch[2], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
           addToScores(game, playerName, score);
         }
@@ -160,10 +186,20 @@ function generateLeaderboard() {
       // Tango: "Tango #106 | 0:21" (lower time = better)
       else if (line.startsWith('Tango')) {
         gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+        if (index < lines.length - 1) {
+          altGameScoreMatch = lines[index + 1].match(/^(\d+):(\d+)(?:.*)?$/);
+        }
         if (gameScoreMatch) {
           const game = 'Tango 🌗';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
+          const score = minutes * 60 + seconds; // Convert time to seconds
+          addToScores(game, playerName, score);
+        }
+        else if (altGameScoreMatch) {
+          const game = 'Tango 🌗';
+          const minutes = parseInt(altGameScoreMatch[1], 10);
+          const seconds = parseInt(altGameScoreMatch[2], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
           addToScores(game, playerName, score);
         }
