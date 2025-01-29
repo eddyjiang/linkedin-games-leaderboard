@@ -1,6 +1,6 @@
 ![Marquee image](marquee.png)
 ### Description
-LinkedIn Games Leaderboard is a Chrome Extension that generates a daily leaderboard to send to LinkedIn Games groupchats
+LinkedIn Games Leaderboard is a [Chrome Extension](https://chrome.google.com/webstore/detail/oninhemoloejgfmakdffidemgijheflf) that generates a daily leaderboard to send to LinkedIn Games groupchats
 
 ### Instructions
 1. Open your LinkedIn Games groupchat
