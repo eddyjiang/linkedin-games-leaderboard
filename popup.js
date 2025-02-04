@@ -109,14 +109,16 @@ function generateLeaderboard() {
   // Helper function to get sender name using the new property path
   function getSenderName(messageElement) {
     // Check if message has 3 child elements (name is included)
-    if (messageElement.childElementCount == 3)
+    if (messageElement.childElementCount >= 3)
       lastSenderName = messageElement.firstElementChild.nextElementSibling.firstElementChild.innerText.trim()
     return lastSenderName;
   }
   
   // Helper function to get message text using lastElementChild.innerText
   function getMessageText(messageElement) {
-    const scoreText = messageElement.lastElementChild.innerText.trim();
+    let scoreText = messageElement.lastElementChild.innerText.trim();
+    if (messageElement.childElementCount % 2 == 0)
+      scoreText = messageElement.lastElementChild.previousElementSibling.innerText.trim();
     return scoreText || null; // Return the game score text or null if not found
   }
   
