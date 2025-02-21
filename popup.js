@@ -1,5 +1,5 @@
 document.getElementById('generateLeaderboardBtn').addEventListener('click', () => {
-  // Send a message to the content script to generate the leaderboard
+  // Send message to content script to generate leaderboard
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript(
       {
@@ -14,16 +14,16 @@ document.getElementById('generateLeaderboardBtn').addEventListener('click', () =
 });
 
 function generateLeaderboard() {
-  // Grab the chat container and ensure it exists
+  // Grab chat container and ensure it exists
   const chatContainer = document.querySelector('.msg-s-message-list-content');
   if (!chatContainer) {
     console.error("Chat container not found.");
     return;
   }
 
-  let processMessages = false; // Start processing only after "TODAY"
-  let lastSenderName = null; // Track the last sender
-  const scores = {}; // Store the scores for each game
+  let processMessages = false; // Start processing only after "TODAY" header
+  let lastSenderName = null; // Track last sender
+  const scores = {}; // Store scores for each game
 
   const messageNodes = chatContainer.querySelectorAll('.msg-s-event-listitem');
   
@@ -37,8 +37,8 @@ function generateLeaderboard() {
     }
 
     if (processMessages) {
-      const senderName = getSenderName(node); // Get the sender name (or reuse lastSenderName)
-      const messageText = getMessageText(node); // Get the message text
+      const senderName = getSenderName(node); // Get sender name or reuse lastSenderName
+      const messageText = getMessageText(node);
 
       console.log("Sender Name:", senderName);
       console.log("Message Text:", messageText);
@@ -49,7 +49,7 @@ function generateLeaderboard() {
     }
   });
 
-  // Helper: Detect if the message is a "TODAY" header
+  // Helper: Detect "TODAY" header
   function isDayHeader(messageElement) {
     const parentText = messageElement.parentElement.innerText.trim();
     return parentText.startsWith('TODAY');
@@ -96,33 +96,33 @@ function generateLeaderboard() {
     });
   }
 
-  // Find the input box and insert the leaderboard into it
+  // Find input box and insert leaderboard
   const inputBox = document.querySelector('.msg-form__contenteditable');
   if (inputBox) {
-    // Use innerHTML to insert the leaderboard HTML properly into the input box
+    // Use innerHTML to insert leaderboard HTML properly into input box
     inputBox.innerHTML = `<p>${leaderboard}</p>`;
 
-    // Dispatch the input event to simulate the user typing
+    // Dispatch input event to simulate user typing
     inputBox.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  // Helper function to get sender name using the new property path
+  // Helper: Get sender name using new property path
   function getSenderName(messageElement) {
-    // Check if message has 3 child elements (name is included)
+    // Check if message has at least 3 child elements (name is included)
     if (messageElement.childElementCount >= 3)
       lastSenderName = messageElement.firstElementChild.nextElementSibling.firstElementChild.innerText.trim()
     return lastSenderName;
   }
   
-  // Helper function to get message text using lastElementChild.innerText
+  // Helper: Get message text
   function getMessageText(messageElement) {
-    let scoreText = messageElement.lastElementChild.innerText.trim();
-    if (messageElement.childElementCount % 2 == 0)
+    let scoreText = messageElement.lastElementChild.innerText.trim(); // Message has no reaction
+    if (messageElement.childElementCount % 2 == 0) // Messsage has reaction
       scoreText = messageElement.lastElementChild.previousElementSibling.innerText.trim();
-    return scoreText || null; // Return the game score text or null if not found
+    return scoreText || null; // Return game score text or null if not found
   }
   
-  // Parse the message for game scores
+  // Parse message for game scores
   function parseMessage(playerName, message) {
     const lines = message.split('\n');
     if (lines.length < 1) return;
@@ -131,31 +131,39 @@ function generateLeaderboard() {
       let gameScoreMatch;
       let altGameScoreMatch;
   
-      // Pinpoint: "Pinpoint #266 | 2 guesses" (lower guesses = better)
-      if (line.startsWith('Pinpoint')) {
-        gameScoreMatch = line.match(/^Pinpoint #(\d+)\s*\|\s*(\d+)(?:.*)?$/);
+      // "Pinpoint #234 | 1 guess"
+      // "Pinpoint #234 \n 📌 ⬜ ⬜ ⬜ ⬜ (1/5)"
+      if (line.match(/Pinpoint #(\d+)/)) {
+        gameScoreMatch = line.match(/Pinpoint #(\d+)\s\|\s(\d+)/);
+        if (index < lines.length - 1) {
+          altGameScoreMatch = lines[index + 1].match(/\((\d+)\/(\d+)\)/);
+        }
+        const game = 'Pinpoint 📌';
         if (gameScoreMatch) {
-          const game = 'Pinpoint 📌';
-          const score = parseInt(gameScoreMatch[2], 10); // Lower guesses = better score
+          const score = parseInt(gameScoreMatch[2], 10);
+          addToScores(game, playerName, score);
+        }
+        else if (altGameScoreMatch) {
+          const score = parseInt(altGameScoreMatch[1], 10);
           addToScores(game, playerName, score);
         }
       }
   
-      // Queens: "Queens #266 | 0:19" (lower time = better)
-      else if (line.startsWith('Queens')) {
-        gameScoreMatch = line.match(/^Queens #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+      // "Queens #234 | 1:23"
+      // "Queens #234 \n 1:23 👑"
+      else if (line.match(/Queens #(\d+)/)) {
+        gameScoreMatch = line.match(/Queens #(\d+)\s\|\s(\d+):(\d+)/);
         if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/^(\d+):(\d+)(?:.*)?$/);
+          altGameScoreMatch = lines[index + 1].match(/(\d+):(\d+)/);
         }
+        const game = 'Queens 👑';
         if (gameScoreMatch) {
-          const game = 'Queens 👑';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
           addToScores(game, playerName, score);
         }
         else if (altGameScoreMatch) {
-          const game = 'Queens 👑';
           const minutes = parseInt(altGameScoreMatch[1], 10);
           const seconds = parseInt(altGameScoreMatch[2], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
@@ -163,21 +171,21 @@ function generateLeaderboard() {
         }
       }
   
-      // Crossclimb: "Crossclimb #266 | 0:20" (lower time = better)
-      else if (line.startsWith('Crossclimb')) {
-        gameScoreMatch = line.match(/^Crossclimb #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+      // "Crossclimb #234 | 0:20"
+      // "Crossclimb #234 \n 0:20 🪜"
+      else if (line.match(/Crossclimb #(\d+)/)) {
+        gameScoreMatch = line.match(/Crossclimb #(\d+)\s\|\s(\d+):(\d+)/);
         if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/^(\d+):(\d+)(?:.*)?$/);
+          altGameScoreMatch = lines[index + 1].match(/(\d+):(\d+)/);
         }
+        const game = 'Crossclimb 🪜';
         if (gameScoreMatch) {
-          const game = 'Crossclimb 🪜';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
           addToScores(game, playerName, score);
         }
         else if (altGameScoreMatch) {
-          const game = 'Crossclimb 🪜';
           const minutes = parseInt(altGameScoreMatch[1], 10);
           const seconds = parseInt(altGameScoreMatch[2], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
@@ -185,21 +193,21 @@ function generateLeaderboard() {
         }
       }
   
-      // Tango: "Tango #106 | 0:21" (lower time = better)
-      else if (line.startsWith('Tango')) {
-        gameScoreMatch = line.match(/^Tango #(\d+)\s*\|\s*(\d+):(\d+)(?:.*)?$/);
+      // "Tango #100 | 0:21"
+      // "Tango #100 \n 0:21 🌗"
+      else if (line.match(/Tango #(\d+)/)) {
+        gameScoreMatch = line.match(/Tango #(\d+)\s\|\s(\d+):(\d+)/);
         if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/^(\d+):(\d+)(?:.*)?$/);
+          altGameScoreMatch = lines[index + 1].match(/(\d+):(\d+)/);
         }
+        const game = 'Tango 🌗';
         if (gameScoreMatch) {
-          const game = 'Tango 🌗';
           const minutes = parseInt(gameScoreMatch[2], 10);
           const seconds = parseInt(gameScoreMatch[3], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
           addToScores(game, playerName, score);
         }
         else if (altGameScoreMatch) {
-          const game = 'Tango 🌗';
           const minutes = parseInt(altGameScoreMatch[1], 10);
           const seconds = parseInt(altGameScoreMatch[2], 10);
           const score = minutes * 60 + seconds; // Convert time to seconds
@@ -209,7 +217,7 @@ function generateLeaderboard() {
     });
   }
   
-  // Helper function to add scores to the leaderboard
+  // Helper: Add scores to leaderboard
   function addToScores(game, playerName, score) {
     if (!scores[game]) scores[game] = [];
     scores[game].push({ player: playerName, score: score });
