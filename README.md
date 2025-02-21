@@ -14,13 +14,13 @@ LinkedIn Games Leaderboard is a [Chrome Extension](https://chrome.google.com/web
 - Clean, intuitive interface
 
 ### Version History
+1.3
+- Comprehensive support for score message formats
 1.2
 - Support for varying sender behaviors
-
 1.1
-- Comprehensive support for score message formats
+- Support for varying score message formats
 - Improved tiebreaking
-
 1.0 — Initial release
 - Basic chat window detection and leaderboard generation
 - Support for all four games
