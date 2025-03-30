@@ -59,7 +59,7 @@ function generateLeaderboard() {
   let leaderboard = '<p>🏆 Leaderboard 🏆</p>';
   for (const game in scores) {
     leaderboard += '<p><br></p>';
-    const sortedScores = scores[game].sort((a, b) => a.score - b.score); // Lower is better for all games
+    const sortedScores = scores[game].sort((a, b) => a.score - b.score); // Scores ranked from lower to highest
     leaderboard += `<p>${game}</p>`;
 
     let lastScore = null;
@@ -121,6 +121,22 @@ function generateLeaderboard() {
       scoreText = messageElement.lastElementChild.previousElementSibling.innerText.trim();
     return scoreText || null; // Return game score text or null if not found
   }
+
+  function getScore(line) {
+    let scoreMatch;
+    if (scoreMatch = line.match(/#(\d+)\s\|\s(\d+)\sguess/)) { // "Pinpoint #234 | 1 guess"
+      return parseInt(scoreMatch[2], 10);
+    }
+    if (scoreMatch = line.match(/\((\d+)\/(\d+)\)/)) { // Alt format: "Pinpoint #234 \n 📌 ⬜ ⬜ ⬜ ⬜ (1/5)"
+      return parseInt(scoreMatch[1], 10);
+    }
+    if (scoreMatch = line.match(/(\d+):(\d+)/)) { // Rest of games are time-based, e.g., "1:23"
+      const minutes = parseInt(scoreMatch[1], 10);
+      const seconds = parseInt(scoreMatch[2], 10);
+      return minutes * 60 + seconds; // Convert time to seconds
+    }
+    return null;
+  }
   
   // Parse message for game scores
   function parseMessage(playerName, message) {
@@ -128,89 +144,32 @@ function generateLeaderboard() {
     if (lines.length < 1) return;
   
     lines.forEach((line, index) => {
-      let gameScoreMatch;
-      let altGameScoreMatch;
-  
-      // "Pinpoint #234 | 1 guess"
-      // "Pinpoint #234 \n 📌 ⬜ ⬜ ⬜ ⬜ (1/5)"
+      let game;
+      let score;
+
       if (line.match(/Pinpoint #(\d+)/)) {
-        gameScoreMatch = line.match(/Pinpoint #(\d+)\s\|\s(\d+)/);
-        if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/\((\d+)\/(\d+)\)/);
-        }
-        const game = 'Pinpoint 📌';
-        if (gameScoreMatch) {
-          const score = parseInt(gameScoreMatch[2], 10);
-          addToScores(game, playerName, score);
-        }
-        else if (altGameScoreMatch) {
-          const score = parseInt(altGameScoreMatch[1], 10);
-          addToScores(game, playerName, score);
-        }
+        game = 'Pinpoint 📌';
       }
-  
-      // "Queens #234 | 1:23"
-      // "Queens #234 \n 1:23 👑"
       else if (line.match(/Queens #(\d+)/)) {
-        gameScoreMatch = line.match(/Queens #(\d+)\s\|\s(\d+):(\d+)/);
-        if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/(\d+):(\d+)/);
-        }
-        const game = 'Queens 👑';
-        if (gameScoreMatch) {
-          const minutes = parseInt(gameScoreMatch[2], 10);
-          const seconds = parseInt(gameScoreMatch[3], 10);
-          const score = minutes * 60 + seconds; // Convert time to seconds
-          addToScores(game, playerName, score);
-        }
-        else if (altGameScoreMatch) {
-          const minutes = parseInt(altGameScoreMatch[1], 10);
-          const seconds = parseInt(altGameScoreMatch[2], 10);
-          const score = minutes * 60 + seconds; // Convert time to seconds
-          addToScores(game, playerName, score);
-        }
+        game = 'Queens 👑';
       }
-  
-      // "Crossclimb #234 | 0:20"
-      // "Crossclimb #234 \n 0:20 🪜"
       else if (line.match(/Crossclimb #(\d+)/)) {
-        gameScoreMatch = line.match(/Crossclimb #(\d+)\s\|\s(\d+):(\d+)/);
-        if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/(\d+):(\d+)/);
-        }
-        const game = 'Crossclimb 🪜';
-        if (gameScoreMatch) {
-          const minutes = parseInt(gameScoreMatch[2], 10);
-          const seconds = parseInt(gameScoreMatch[3], 10);
-          const score = minutes * 60 + seconds; // Convert time to seconds
-          addToScores(game, playerName, score);
-        }
-        else if (altGameScoreMatch) {
-          const minutes = parseInt(altGameScoreMatch[1], 10);
-          const seconds = parseInt(altGameScoreMatch[2], 10);
-          const score = minutes * 60 + seconds; // Convert time to seconds
-          addToScores(game, playerName, score);
-        }
+        game = 'Crossclimb 🪜';
       }
-  
-      // "Tango #100 | 0:21"
-      // "Tango #100 \n 0:21 🌗"
       else if (line.match(/Tango #(\d+)/)) {
-        gameScoreMatch = line.match(/Tango #(\d+)\s\|\s(\d+):(\d+)/);
-        if (index < lines.length - 1) {
-          altGameScoreMatch = lines[index + 1].match(/(\d+):(\d+)/);
+        game = 'Tango 🌗';
+      }
+      else if (line.match(/Zip #(\d+)/)) {
+        game = 'Zip 🏁';
+      }
+
+      if (game) {
+        score = getScore(line);
+        if (!score && index < lines.length - 1) {
+          nextLine = lines[index + 1]
+          score = getScore(nextLine);
         }
-        const game = 'Tango 🌗';
-        if (gameScoreMatch) {
-          const minutes = parseInt(gameScoreMatch[2], 10);
-          const seconds = parseInt(gameScoreMatch[3], 10);
-          const score = minutes * 60 + seconds; // Convert time to seconds
-          addToScores(game, playerName, score);
-        }
-        else if (altGameScoreMatch) {
-          const minutes = parseInt(altGameScoreMatch[1], 10);
-          const seconds = parseInt(altGameScoreMatch[2], 10);
-          const score = minutes * 60 + seconds; // Convert time to seconds
+        if (score) {
           addToScores(game, playerName, score);
         }
       }
