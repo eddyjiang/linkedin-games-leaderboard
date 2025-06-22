@@ -4,7 +4,9 @@ LinkedIn Games Leaderboard is a [Chrome Extension](https://chrome.google.com/web
 
 ### Instructions 👑🪜🏁🌗📌
 🥇 Open your LinkedIn Games groupchat
+
 🥈 Click "Generate Leaderboard"
+
 🥉 Send!
 
 ### Features
