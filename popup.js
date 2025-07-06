@@ -132,12 +132,14 @@ document.getElementById('generateLeaderboardBtn').addEventListener('click', () =
               let numTies = 1;
               sorted.forEach(entry => {
                 // Tiebreaking logic: Include all ties, but exclude all inferior scores if number of superior scores is already at least 3
-                if (rank > 2) return;
-                if (entry.score !== lastScore) {
+                if (lastScore !== entry.score) {
                   rank += numTies;
                   numTies = 1;
                 } else {
                   numTies++;
+                }
+                if (rank > 3) {
+                  return;
                 }
 
                 const medal = ['🥇', '🥈', '🥉'][rank - 1] || '';
