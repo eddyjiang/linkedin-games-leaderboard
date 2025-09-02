@@ -11,8 +11,8 @@ document.getElementById('generateLeaderboardBtn').addEventListener('click', () =
               return;
             }
 
-            const SCROLL_INTERVAL = 300; // Wait time after scroll
-            const MAX_SCROLLS = 30; // Prevent infinite scroll loop
+            const SCROLL_INTERVAL = 500; // Wait time after scroll
+            const MAX_SCROLLS = 50; // Prevent infinite scroll loop
             let scrolls = 0;
 
             while (scrolls < MAX_SCROLLS) {
@@ -93,10 +93,11 @@ document.getElementById('generateLeaderboardBtn').addEventListener('click', () =
                 let score;
 
                 if (line.match(/Pinpoint #(\d+)/)) game = 'Pinpoint 📌';
-                else if (line.match(/Queens #(\d+)/)) game = 'Queens 👑';
+                else if (line.match(/Queens #(\d+)|Queens\? I completed today’s puzzle in/)) game = 'Queens 👑';
                 else if (line.match(/Crossclimb #(\d+)/)) game = 'Crossclimb 🪜';
-                else if (line.match(/Tango #(\d+)/)) game = 'Tango 🌗';
-                else if (line.match(/Zip #(\d+)/)) game = 'Zip 🏁';
+                else if (line.match(/Tango #(\d+)|Tango\? I completed today’s puzzle in/)) game = 'Tango 🌗';
+                else if (line.match(/Zip #(\d+)|Zip\? I completed today’s puzzle in/)) game = 'Zip 🏁';
+                else if (line.match(/Mini Sudoku #(\d+)/)) game = 'Mini Sudoku ✏️';
 
                 if (game) {
                   score = getScore(line);
