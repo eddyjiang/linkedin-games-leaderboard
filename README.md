@@ -2,19 +2,24 @@
 ### Description
 LinkedIn Games Leaderboard is a [Chrome Extension](https://chrome.google.com/webstore/detail/oninhemoloejgfmakdffidemgijheflf) that generates a daily leaderboard to send to LinkedIn Games groupchats
 
-### Instructions 👑🪜🏁🌗📌
+### Instructions 👑🪜🏁✏️🌗📌
 🥇 Open your LinkedIn Games groupchat
 
-🥈 Click "Generate Leaderboard"
+🥈 Click "Generate Today's Leaderboard"
 
 🥉 Send!
 
 ### Features
 - Automatically detects chat windows and score messages
-- Generates daily leaderboard of all four games (Queens, Tango, Pinpoint, Crossclimb)
+- Generates daily leaderboard of all six games (Crossclimb, Pinpoint, Queens, Tango, Zip, and Mini Sudoku)
 - Clean, intuitive interface
 
 ### Version History
+1.6
+- Support for Mini Sudoku
+- Support for all three score message formats
+- Fixed tiebreaking bug
+
 1.5
 - Automated scrolling to load all score messages for the day
 
